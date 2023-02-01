@@ -111,4 +111,4 @@
 <h3>5. Run</h3>
 <pre>npm run dev</pre>
 </br>
-<h3>5. Install the frontend application. See guide here 👉 <a target="_blank" href="https://github.com/a-liljeroos/citybike-frontend">Citybike Frontend</a></h3>
+<h3>6. Install the frontend application. See guide here 👉 <a target="_blank" href="https://github.com/a-liljeroos/citybike-frontend">Citybike Frontend</a></h3>
