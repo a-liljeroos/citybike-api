@@ -69,7 +69,7 @@
 </br>
 <h3>4. Login in postgreSQL</h3>
 <pre>psql -U postgres -W</pre>
-<image src="https://user-images.githubusercontent.com/83167019/215735398-183fe416-62fb-4149-b75c-a98c17beaa72.png"/>
+<image src="https://github.com/a-liljeroos/citybike-api/blob/main/docs/login.png?raw=true"/>
 </br>
 <h3>5. Create a database named citybike</h3>
 <pre>
@@ -80,7 +80,7 @@
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 </pre>
-<image src="create-db.png?raw=true"/>
+<image src="https://github.com/a-liljeroos/citybike-api/blob/main/docs/create-db.png?raw=true"/>
 </br>
 <h3>6. Quit psql</h3>
 <pre>\q</pre>
@@ -89,7 +89,7 @@
 </br>
 <p>EXAMPLE: "psql -h localhost -d citybike -U postgres -f <strong><i>***path to the sql file**</i></strong>"</p>
 <pre>psql -h localhost -d citybike -U postgres -f C:\citybike.sql</pre>
-<image src="https://user-images.githubusercontent.com/83167019/215743292-3b3cc309-2e24-4949-90c1-0a0410a09e9f.png"/>
+<image src="https://github.com/a-liljeroos/citybike-api/blob/main/docs/import-sql-file.PNG?raw=true"/>
 </br>
 <h3>8. Done! Close CMD 😎	</h3>
 </br>
@@ -102,7 +102,7 @@
 <pre>cd ./citybike-api</pre>
 </br>
 <h3>3. Give the postgreSQL password in the .env file. </h3>
-<image src="https://user-images.githubusercontent.com/83167019/216041817-2182f881-22d1-44e6-92bb-078f9198ca97.png"/>
+<image src="https://github.com/a-liljeroos/citybike-api/blob/main/docs/setpass.png?raw=true"/>
 </br>
 <h3>4. Install dependencies</h3>
 <pre>npm install</pre>
@@ -111,4 +111,4 @@
 <h3>5. Run</h3>
 <pre>npm run dev</pre>
 </br>
-<h3>5. Install the frontend application. See guide here 👉 <a target="_blank" href="">Citybike Frontend</a></h3>
+<h3>5. Install the frontend application. See guide here 👉 <a target="_blank" href="https://github.com/a-liljeroos/citybike-frontend">Citybike Frontend</a></h3>
