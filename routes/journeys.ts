@@ -28,7 +28,7 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
             console.error("Error executing query: ", err);
             return;
           }
-          const journeyAmount: number = results.rows[0].count;
+          const totalJourneys: number = results.rows[0].count;
           const pageSize: number = 30;
           const pageNumber: number = Math.ceil(Number(req.query.page));
 
@@ -50,10 +50,13 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
                 res.status(400).json({ error: "No results" });
               }
               res.status(200).json({
-                currentPage: pageNumber,
-                totalJourneys: journeyAmount,
                 journeys: journeys,
-                pageSize: pageSize,
+                pagination: {
+                  currentPage: pageNumber,
+                  pageSize: pageSize,
+                  totalJourneys: totalJourneys,
+                  totalPages: Math.ceil(totalJourneys / 30),
+                },
               });
               release();
             }
