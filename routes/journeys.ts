@@ -13,6 +13,8 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
   });
 
   if (schema.validate(req.query).error) {
+    //
+    // WRONG PARAMETERS RESPONSE
     res.status(422).send(schema.validate(req.query.page).error.details);
     return;
   } else {
@@ -21,6 +23,9 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
         console.error("Error connecting to the database: ", err);
         return;
       }
+      //
+      // HOW MANY JOURENYS IN THE DATABASE
+      //
       client.query(
         "SELECT COUNT(*) FROM journey;",
         (err, results: QueryResult<Count>) => {
@@ -34,6 +39,9 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
 
           const id1 = pageNumber * pageSize - pageSize;
           const id2 = id1 + pageSize - 1;
+          //
+          // SELECT A RANGE OF JOURNEYS FOR THE PAGE
+          //
           client.query(
             "SELECT * FROM journey WHERE id BETWEEN $1 AND $2",
             [id1, id2],
@@ -45,10 +53,13 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
               }
 
               const journeys = results.rows;
-
+              //
+              // NO RESULTS RESPONSE
               if (journeys.length === 0) {
                 res.status(400).json({ error: "No results" });
               }
+              //
+              // PAGE RESPONSE
               res.status(200).json({
                 journeys: journeys,
                 pagination: {

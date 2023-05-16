@@ -7,6 +7,7 @@ const Joi = require("joi");
 export const stationRoutes = Router();
 
 // returns all stations => {station[]}
+
 stationRoutes.get("/all", (req: Request, res: Response) => {
   pool.connect((err, client, release) => {
     if (err) {
@@ -20,6 +21,8 @@ stationRoutes.get("/all", (req: Request, res: Response) => {
           console.error("Error executing query: ", err);
           return;
         }
+        //
+        // LIST OF ALL STATIONS RESPONSE 200
         res.status(200).json(results.rows);
         release();
       }
@@ -28,11 +31,14 @@ stationRoutes.get("/all", (req: Request, res: Response) => {
 });
 
 // returns station by id: {station_id: 1} => {station}
+
 stationRoutes.post("/", (req: Request, res: Response) => {
   const schema = Joi.object().keys({
     station_id: Joi.number().min(1).required(),
   });
   if (schema.validate(req.body).error) {
+    //
+    // WRONG PARAMETERS RESPONSE 422
     res.status(422).json({ error: "not a valid station id" });
     return;
   } else {
@@ -41,7 +47,9 @@ stationRoutes.post("/", (req: Request, res: Response) => {
         console.error("Error connecting to the database: ", err);
         return;
       }
-
+      //
+      // SELECT A SINGLE STATION BY ID
+      //
       client.query(
         `SELECT * FROM station WHERE station_id = $1;`,
         [req.body.station_id],
@@ -57,6 +65,9 @@ stationRoutes.post("/", (req: Request, res: Response) => {
           }
 
           const station = results.rows[0];
+          //
+          //  FIND THE RETURN AND DEPARTURE AMOUNTS FOR THE STATION
+          //
           client.query(
             `(SELECT COUNT(*) FROM journey WHERE departure_station_id = $1)
           UNION ALL
@@ -70,6 +81,8 @@ stationRoutes.post("/", (req: Request, res: Response) => {
               }
               station["station_departures"] = results.rows[0].count;
               station["station_returns"] = results.rows[1].count;
+              //
+              // STATION DATA RESPONSE 200
               res.status(200).json(station);
               release();
             }
