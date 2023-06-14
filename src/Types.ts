@@ -1,4 +1,4 @@
-export type Journey = {
+export type TJourney = {
   id: number;
   departure_time: string;
   return_time: string;
@@ -10,7 +10,7 @@ export type Journey = {
   duration: number;
 };
 
-export type Station = {
+export type TStation = {
   station_id: number;
   station_nimi: string;
   station_namn: string;

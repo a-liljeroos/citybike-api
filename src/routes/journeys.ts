@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { QueryResult } from "pg";
-import { Journey, Count } from "../Types";
+import { TJourney, Count } from "../Types";
 import { pool } from "../options";
 const Joi = require("joi");
 
@@ -45,7 +45,7 @@ journeyRoutes.get("/pages", (req: Request, res: Response) => {
           client.query(
             "SELECT * FROM journey WHERE id BETWEEN $1 AND $2",
             [id1, id2],
-            (err, results: QueryResult<Journey>) => {
+            (err, results: QueryResult<TJourney>) => {
               if (err) {
                 console.error("Error executing query: ", err);
                 res.status(400).json({ error: "No results" });

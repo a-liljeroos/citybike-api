@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { QueryResult } from "pg";
-import { Station, Count } from "../Types";
-import { stationRepository } from "../data-source";
+import { TStation } from "../Types";
+import { stationRepository, journeyRepository } from "../data-source";
 import { pool } from "../options";
 const Joi = require("joi");
 
@@ -20,63 +20,45 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
 
 // returns station by id: {station_id: 1} => {station}
 
-stationRoutes.post("/", (req: Request, res: Response) => {
+stationRoutes.post("/", async (req: Request, res: Response) => {
   const schema = Joi.object().keys({
     station_id: Joi.number().min(1).required(),
   });
+
   if (schema.validate(req.body).error) {
-    //
     // WRONG PARAMETERS RESPONSE 422
     res.status(422).json({ error: "not a valid station id" });
     return;
-  } else {
-    pool.connect((err, client, release) => {
-      if (err) {
-        console.error("Error connecting to the database: ", err);
-        return;
-      }
-      //
-      // SELECT A SINGLE STATION BY ID
-      //
-      client.query(
-        `SELECT * FROM station WHERE station_id = $1;`,
-        [req.body.station_id],
-        (err, results: QueryResult<Station>) => {
-          if (err) {
-            res.status(400).json({ "Error executing query: ": err });
-            return;
-          }
+  }
 
-          if (results.rows.length === 0) {
-            res.status(400).json({ "Error executing query: ": "No results" });
-            return;
-          }
-
-          const station = results.rows[0];
-          //
-          //  FIND THE RETURN AND DEPARTURE AMOUNTS FOR THE STATION
-          //
-          client.query(
-            `(SELECT COUNT(*) FROM journey WHERE departure_station_id = $1)
-          UNION ALL
-          (SELECT COUNT(*) FROM journey WHERE return_station_id = $1)
-          `,
-            [req.body.station_id],
-            (err, results: QueryResult<Count>) => {
-              if (err) {
-                res.status(400).json({ "Error executing query: ": err });
-                return;
-              }
-              station["station_departures"] = results.rows[0].count;
-              station["station_returns"] = results.rows[1].count;
-              //
-              // STATION DATA RESPONSE 200
-              res.status(200).json(station);
-              release();
-            }
-          );
-        }
-      );
+  try {
+    // FIND THE STATION BY STATION_ID
+    const station = await stationRepository.findOne({
+      where: { station_id: req.body.station_id },
     });
+
+    if (!station) {
+      return res.status(400).json({ "Error executing query: ": "No results" });
+    }
+
+    const departures = await journeyRepository.count({
+      where: { departure_station_id: req.body.station_id },
+    });
+    const returns = await journeyRepository.count({
+      where: { return_station_id: req.body.station_id },
+    });
+
+    // ADD DEPARTURES AND RETURNS TO STATION
+    const stationWithDeparturesAndReturns: TStation = {
+      ...station,
+      station_departures: departures,
+      station_returns: returns,
+    };
+
+    // STATION DATA RESPONSE 200
+    res.status(200).json(stationWithDeparturesAndReturns);
+  } catch (error) {
+    console.error("Error executing query: ", error);
+    res.status(400).json({ "Error executing query: ": error });
   }
 });
