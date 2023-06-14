@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { QueryResult } from "pg";
 import { Station, Count } from "../Types";
+import { stationRepository } from "../data-source";
 import { pool } from "../options";
 const Joi = require("joi");
 
@@ -8,26 +9,13 @@ export const stationRoutes = Router();
 
 // returns all stations => {station[]}
 
-stationRoutes.get("/all", (req: Request, res: Response) => {
-  pool.connect((err, client, release) => {
-    if (err) {
-      console.error("Error connecting to the database: ", err);
-      return;
-    }
-    client.query(
-      "SELECT * FROM station",
-      (err, results: QueryResult<Station>) => {
-        if (err) {
-          console.error("Error executing query: ", err);
-          return;
-        }
-        //
-        // LIST OF ALL STATIONS RESPONSE 200
-        res.status(200).json(results.rows);
-        release();
-      }
-    );
-  });
+stationRoutes.get("/all", async (req: Request, res: Response) => {
+  try {
+    const stations = await stationRepository.find();
+    res.status(200).json(stations);
+  } catch (error) {
+    res.status(400).json({ error: "No results" });
+  }
 });
 
 // returns station by id: {station_id: 1} => {station}

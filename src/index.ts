@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { corsOptions } from "./options";
 import { stationRoutes } from "./routes/stations";
 import { journeyRoutes } from "./routes/journeys";
+import "reflect-metadata";
 
 dotenv.config();
 
