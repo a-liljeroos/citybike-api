@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { Station } from "./entities/Station";
+import { Station, Journey } from "./entities/index";
 require("dotenv").config();
 
 export const AppDataSource = new DataSource({
@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
   database: "citybike",
   synchronize: false,
   logging: false,
-  entities: [Station],
+  entities: [Station, Journey],
   migrations: [],
   subscribers: [],
 });
@@ -25,3 +25,4 @@ AppDataSource.initialize()
   });
 
 export const stationRepository = AppDataSource.getRepository(Station);
+export const journeyRepository = AppDataSource.getRepository(Journey);
