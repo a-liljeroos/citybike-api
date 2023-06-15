@@ -26,7 +26,3 @@ export type TStation = {
   station_departures: number;
   station_returns: number;
 };
-
-export type Count = {
-  count: number;
-};

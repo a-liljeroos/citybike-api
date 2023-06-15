@@ -1,8 +1,6 @@
 import { Router, Request, Response } from "express";
-import { QueryResult } from "pg";
 import { TStation } from "../Types";
 import { stationRepository, journeyRepository } from "../data-source";
-import { pool } from "../options";
 const Joi = require("joi");
 
 export const stationRoutes = Router();
