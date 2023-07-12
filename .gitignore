@@ -1,3 +1,6 @@
-node_modules
-dist
-.env
+api/node_modules
+api/dist
+api/.env
+postgres/data
+postgres/*.sql
+*.gitignore
