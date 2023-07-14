@@ -133,14 +133,24 @@ docker-compose up
 <h3>2. Download the project repository and navigate to the folder with CMD</h3>
 <pre>cd ./citybike-api</pre>
 </br>
-<h3>3. Give the postgreSQL password in the .env file. </h3>
-<image src="https://github.com/a-liljeroos/citybike-api/blob/main/docs/setpass.png?raw=true"/>
+<h3>3. Create .env file in the api folder with the following content</h3>
+<pre>
+PORT=5000
+TEST_PORT=5001
+DATABASE_PASS=admin
+</pre>
 </br>
-<h3>4. Install dependencies</h3>
+<h3>4. Change the host on the line 7 to 'localhost' in "./api/src/data-source.ts" -file</h3>
+<pre>
+host: "postgres"
+host: "localhost"
+</pre>
+</br>
+<h3>5. Install dependencies</h3>
 <pre>npm install</pre>
 </br>
 
-<h3>5. Run</h3>
+<h3>6. Run</h3>
 <pre>npm run dev</pre>
 </br>
-<h3>6. Install the frontend application. See guide here 👉 <a target="_blank" href="https://github.com/a-liljeroos/citybike-frontend">Citybike Frontend</a></h3>
+<h3>7. Install the frontend application. See guide here 👉 <a target="_blank" href="https://github.com/a-liljeroos/citybike-frontend">Citybike Frontend</a></h3>
