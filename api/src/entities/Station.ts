@@ -2,10 +2,7 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Station {
-  @PrimaryColumn("smallint")
-  station_fid: number;
-
-  @Column("smallint")
+  @PrimaryColumn("integer")
   station_id: number;
 
   @Column("varchar", { length: 50 })
