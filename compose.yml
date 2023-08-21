@@ -19,3 +19,10 @@ services:
       - 5000:5000
     depends_on:
       - postgres
+    x-develop:
+      watch:
+        - action: rebuild
+          path: ./api/src
+          target: /api/src
+          ignore:
+            - node_modules/
