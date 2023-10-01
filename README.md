@@ -35,17 +35,57 @@
   <tr>
     <td>POST</td>
     <td>/stations</td>
-    <td>station_id: number</td>
+    <td>station_id: number, trafficInfo: boolean</td>
     <td>single station object</td>
   </tr>
   <tr>
     <td>POST</td>
     <td>/journeys</td>
     <td>page: number</td>
-    <td>29 journey objects in array</td>
+    <td>29 journey objects in an array</td>
+  </tr>
+  <tr>
+    <td>PUT</td>
+    <td>/stations/edit</td>
+    <td>station object</td>
+    <td>"Resource updated successfully"</td>
   </tr>
 
 </table>
+
+<h4>Station object:</h4>
+<pre>
+type TStation = {
+  station_id: number;
+  station_nimi: string;
+  station_namn: string;
+  station_name: string;
+  station_osoite: string;
+  station_adress: string;
+  station_kaupunki: string;
+  station_stad?: string;
+  station_operator?: string;
+  station_capacity: number;
+  station_coord_x: number;
+  station_coord_y: number;
+  station_departures: number;
+  station_returns: number;
+};
+</pre>
+<h4>Journey object:</h4>
+<pre>
+type TJourney = {
+  id: number;
+  departure_time: string;
+  return_time: string;
+  departure_station_id: number;
+  departure_station_nimi: string;
+  return_station_id: number;
+  return_station_nimi: string;
+  covered_distance: number;
+  duration: number;
+};
+</pre>
 </br>
 
 <h2>🤖Docker installation:</h2>
