@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { TStation } from "../Types";
 import { stationRepository, journeyRepository } from "../data-source";
-import { cleanData } from "../utilities";
+import { cleanData, sortObjectArray } from "../utilities";
 const Joi = require("joi");
 
 export const stationRoutes = Router();
@@ -11,7 +11,12 @@ export const stationRoutes = Router();
 stationRoutes.get("/all", async (req: Request, res: Response) => {
   try {
     const stations = await stationRepository.find();
-    res.status(200).json(stations);
+    const sortedArray = sortObjectArray({
+      array: stations,
+      key: "station_name",
+      reverse: false,
+    });
+    res.status(200).json(sortedArray);
   } catch (error) {
     res.status(400).json({ error: "No results" });
   }
@@ -22,11 +27,15 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
 stationRoutes.post("/", async (req: Request, res: Response) => {
   const schema = Joi.object().keys({
     station_id: Joi.number().min(1).required(),
+    trafficInfo: Joi.boolean().required(),
   });
 
   if (schema.validate(req.body).error) {
     // WRONG PARAMETERS RESPONSE 422
-    res.status(422).json({ error: "not a valid station id" });
+    res.status(422).json({
+      error: "not a valid request",
+      correctExample: { station_id: 1, trafficInfo: true },
+    });
     return;
   }
 
@@ -38,6 +47,12 @@ stationRoutes.post("/", async (req: Request, res: Response) => {
 
     if (!station) {
       return res.status(400).json({ "Error executing query: ": "No results" });
+    }
+
+    // IF TRAFFICINFO IS FALSE, RETURN ONLY STATION DATA
+    if (req.body.trafficInfo === false) {
+      res.status(200).json(station);
+      return;
     }
 
     const departures = await journeyRepository.count({
