@@ -19,7 +19,7 @@ services:
       - 5000:5000
     depends_on:
       - postgres
-    x-develop:
+    develop:
       watch:
         - action: rebuild
           path: ./api/src
