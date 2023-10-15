@@ -12,10 +12,12 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
   });
 
   if (schema.validate(req.query).error) {
-    //
-    // WRONG PARAMETERS RESPONSE
-    res.status(422).send(schema.validate(req.query.page).error.details);
-    return;
+    return res.status(400).json({
+      error: "Not a valid request.",
+      message: "The request query does not match the expected schema.",
+      requestQuery: req.query,
+      correctExample: { page: 1 },
+    });
   }
 
   try {
@@ -34,7 +36,10 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
     });
 
     if (journeys.length === 0) {
-      return res.status(400).json({ error: "No results" });
+      return res.status(404).json({
+        error: "Record not found.",
+        requestQuery: req.query,
+      });
     }
 
     // PAGE RESPONSE
@@ -48,7 +53,9 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error executing query: ", error);
-    res.status(400).json({ error: "No results" });
+    return res.status(503).json({
+      error: "Service Unavailable.",
+      requestQuery: req.query,
+    });
   }
 });

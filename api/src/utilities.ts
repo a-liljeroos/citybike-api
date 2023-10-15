@@ -1,3 +1,5 @@
+import { TStation } from "./Types";
+
 export function cleanData(obj: { [key: string]: string | number }): {
   [key: string]: string | number;
 } {
@@ -42,3 +44,18 @@ export function sortObjectArray<T>({
   }
   return sortedArray;
 }
+
+export const exampleStation = {
+  station_id: 59,
+  station_nimi: "Etuniementie",
+  station_namn: "Framnäsvägen",
+  station_name: "Etuniementie",
+  station_osoite: "Kalastajantie 6",
+  station_adress: "Fiskarvägen 6",
+  station_kaupunki: "Espoo",
+  station_stad: "Esbo",
+  station_operator: "CityBike Finland",
+  station_capacity: 10,
+  station_coord_x: "24.724835",
+  station_coord_y: "60.160645",
+};
