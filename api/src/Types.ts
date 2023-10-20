@@ -23,6 +23,9 @@ export type TStation = {
   station_capacity: number;
   station_coord_x: number;
   station_coord_y: number;
+};
+
+export type TStationTrafficData = {
   station_departures: number;
   station_returns: number;
 };

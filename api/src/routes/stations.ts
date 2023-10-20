@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { TStation } from "../Types";
+import { TStation, TStationTrafficData } from "../Types";
 import { stationRepository, journeyRepository } from "../data-source";
 import { cleanData, sortObjectArray, exampleStation } from "../utilities";
 
@@ -30,13 +30,40 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
   }
 });
 
+stationRoutes.get("/data", async (req: Request, res: Response) => {
+  try {
+    const station_id = Number(req.query.trafficInfo);
+
+    const departures = await journeyRepository.count({
+      where: { departure_station_id: station_id },
+    });
+    const returns = await journeyRepository.count({
+      where: { return_station_id: station_id },
+    });
+
+    if (!departures || !returns) {
+      return res.status(404).json({
+        error: "Record not found.",
+      });
+    }
+
+    const stationTrafficData: TStationTrafficData = {
+      station_departures: departures,
+      station_returns: returns,
+    };
+
+    return res.status(200).json(stationTrafficData);
+  } catch (error) {
+    return res.status(503).json({ error: "Service Unavailable." });
+  }
+});
+
 // returns station by id: {station_id: 1, trafficInfo} => {station} || {station with trafficInfo}
 
 stationRoutes.post("/", async (req: Request, res: Response) => {
   try {
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
-      trafficInfo: Joi.boolean().required(),
     });
 
     if (schema.validate(req.body).error) {
@@ -44,7 +71,7 @@ stationRoutes.post("/", async (req: Request, res: Response) => {
         error: "Not a valid request.",
         message: "The request body does not match the expected schema.",
         requestBody: req.body,
-        correctExample: { station_id: 1, trafficInfo: true },
+        correctExample: { station_id: 1 },
       });
     }
 
@@ -59,24 +86,7 @@ stationRoutes.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    if (req.body.trafficInfo === false) {
-      return res.status(200).json(station);
-    }
-
-    const departures = await journeyRepository.count({
-      where: { departure_station_id: req.body.station_id },
-    });
-    const returns = await journeyRepository.count({
-      where: { return_station_id: req.body.station_id },
-    });
-
-    const stationWithDeparturesAndReturns: TStation = {
-      ...station,
-      station_departures: departures,
-      station_returns: returns,
-    };
-
-    res.status(200).json(stationWithDeparturesAndReturns);
+    return res.status(200).json(station);
   } catch (error) {
     return res
       .status(503)
