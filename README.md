@@ -18,42 +18,70 @@
 
 <p>The api calls are validated with <a target="_blank" href="https://joi.dev/">joi</a> and database queries are done with <a target="_blank" href="https://typeorm.io">TypeORM</a>. The endpoints are listed below:</p>
 
-<h3>API Resources :</h3>
-<table>
-  <tr>
-    <th>Method</th>
-    <th>URL</th>
-    <th>Input </th>
-    <th>Output </th>
-  </tr>
-  <tr>
-    <td>GET</td>
-    <td>/stations/all</td>
-    <td>-</td>
-    <td>list of stations</td>
-  </tr>
-  <tr>
-    <td>POST</td>
-    <td>/stations</td>
-    <td>station_id: number, trafficInfo: boolean</td>
-    <td>single station object</td>
-  </tr>
-  <tr>
-    <td>POST</td>
-    <td>/journeys</td>
-    <td>page: number</td>
-    <td>29 journey objects in an array</td>
-  </tr>
-  <tr>
-    <td>PUT</td>
-    <td>/stations/edit</td>
-    <td>station object</td>
-    <td>"Resource updated successfully"</td>
-  </tr>
+<h2>API Resources :</h2>
+<h2>/stations/all</h2>
+<p>GET</p>
+<h4>Success Response:  </h4>
+<li>CODE: 200 OK</li>
 
-</table>
+<pre>{ TStation[] }</pre>
+<br>
+<h4>Error response:</h4>
+<li>CODE: 404 Not Found</li>
 
-<h4>Station object:</h4>
+<pre>
+CONTENT
+{ error: "Record not found." }</pre>
+<li>CODE: 503 Service Unavailable</li>
+
+<pre>
+CONTENT
+{ error: "Service Unavailable" }</pre>
+<br>
+<h2>/stations/</h2>
+<p>POST</p>
+<li>Request body:</li>
+<pre>{
+  "station_id": number
+}
+</pre>
+<li>Parameters</li>
+<p><i>station_id</i> - The unique identifier of the station.</p>
+<br>
+<h4>Success Response:  </h4>
+<li>CODE: 200 OK</li>
+<pre>{ TStation }</pre>
+<br>
+<h4>Error response:</h4>
+<li>CODE: 400 Bad Request</li>
+<pre>
+CONTENT
+{
+  "error": "Not a valid request.",
+  "message": "The request body does not match the expected schema.",
+  "requestBody": { "station_id": "1" },
+  "correctExample": { "station_id": 1, }
+}
+</pre>
+<br>
+<li>CODE 404 Not Found</li>
+<pre>
+CONTENT
+{
+  "error": "Record not found.",
+  "requestBody": { "station_id": 1 }
+}
+</pre>
+<br>
+<li>CODE: 503 Service Unavailable</li>
+
+<pre>
+CONTENT
+{ error: "Service Unavailable" }</pre>
+
+ <br>
+ <br>
+ <h4>Station object:</h4>
 <pre>
 type TStation = {
   station_id: number;
