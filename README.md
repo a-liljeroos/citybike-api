@@ -17,29 +17,24 @@
 <p>After that the data is exported to a .sql file to populate the docker image.</p>
 
 <p>The api calls are validated with <a target="_blank" href="https://joi.dev/">joi</a> and database queries are done with <a target="_blank" href="https://typeorm.io">TypeORM</a>. The endpoints are listed below:</p>
-
+<hr>
 <h2>API Resources :</h2>
-<h2>/stations/all</h2>
-<p>GET</p>
-<h4>Success Response:  </h4>
-<li>CODE: 200 OK</li>
-
-<pre>{ TStation[] }</pre>
-<br>
-<h4>Error response:</h4>
-<li>CODE: 404 Not Found</li>
-
-<pre>
-CONTENT
+<h2>📥 /stations/all</h2>
+<h3>method: <b>GET</b></h3>
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
+<pre>CONTENT
+{ TStation[] }</pre>
+<h4>❌ Error Responses:</h4>
+<li>404 Not Found</li>
+<pre>CONTENT
 { error: "Record not found." }</pre>
-<li>CODE: 503 Service Unavailable</li>
-
-<pre>
-CONTENT
+<li>503 Service Unavailable</li>
+<pre>CONTENT
 { error: "Service Unavailable" }</pre>
-<br>
-<h2>/stations/</h2>
-<p>POST</p>
+<hr>
+<h2>📥 /stations/</h2>
+<h3>method: <b>POST</b></h3>
 <li>Request body:</li>
 <pre>{
   "station_id": number
@@ -47,13 +42,13 @@ CONTENT
 </pre>
 <li>Parameters</li>
 <p><i>station_id</i> - The unique identifier of the station.</p>
-<br>
-<h4>Success Response:  </h4>
-<li>CODE: 200 OK</li>
+
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
 <pre>{ TStation }</pre>
 <br>
-<h4>Error response:</h4>
-<li>CODE: 400 Bad Request</li>
+<h4>❌ Error Responses:</h4>
+<li>400 Bad Request</li>
 <pre>
 CONTENT
 {
@@ -63,8 +58,7 @@ CONTENT
   "correctExample": { "station_id": 1, }
 }
 </pre>
-<br>
-<li>CODE 404 Not Found</li>
+<li>404 Not Found</li>
 <pre>
 CONTENT
 {
@@ -72,16 +66,83 @@ CONTENT
   "requestBody": { "station_id": 1 }
 }
 </pre>
-<br>
-<li>CODE: 503 Service Unavailable</li>
-
+<li>503 Service Unavailable</li>
 <pre>
 CONTENT
 { error: "Service Unavailable" }</pre>
-
- <br>
- <br>
- <h4>Station object:</h4>
+<hr>
+<h2>📥 /stations/data</h2>
+<h3>method: <b>GET</b></h3>
+<li>Query Parameters</li>
+<p><i>trafficInfo</i> - The unique identifier of the station.</p>
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
+<pre>CONTENT
+{
+  "station_departures": number;
+  "station_returns": number;
+};</pre>
+<h4>❌ Error Responses:</h4>
+<li>404 Not Found</li>
+<pre>
+CONTENT
+{  "error": "Record not found." }
+</pre>
+<li>503 Service Unavailable</li>
+<pre>
+CONTENT
+{ error: "Service Unavailable" }</pre>
+<hr>
+<h2>📥 /stations/edit</h2>
+<h3>method: <b>PUT</b></h3>
+<li>Request body schema:</li>
+<pre>
+{
+      station_id: Joi.number().min(1).required(),
+      station_nimi: Joi.string().min(1).max(50).required(),
+      station_namn: Joi.string().min(1).max(50).required(),
+      station_name: Joi.string().min(1).max(50).required(),
+      station_osoite: Joi.string().min(1).max(50).required(),
+      station_adress: Joi.string().min(1).max(50).required(),
+      station_kaupunki: Joi.string().min(1).max(30).allow(null),
+      station_stad: Joi.string().min(1).max(30).allow(null),
+      station_operator: Joi.string().min(1).max(30).allow(null),
+      station_capacity: Joi.number().min(1).max(32767).required(),
+      station_coord_x: Joi.number().min(1).required(),
+      station_coord_y: Joi.number().min(1).required(),
+}
+</pre>
+<h4>✅ Success Response:  </h4>
+<li>201 OK</li>
+<pre>CONTENT
+{
+      message: "Resource updated successfully.",
+      updatedResource: newStationData,
+}</pre>
+<h4>❌ Error Responses:</h4>
+<li>400 Bad Request: </li>
+<pre>CONTENT
+{
+        error: "Not a valid request.",
+        message: "The request body does not match the expected schema.",
+        requestBody: req.body,
+        correctExample: exampleStation,
+}</pre>
+<li>404 Not Found / station_id does not exist</li>
+<pre>CONTENT
+{
+     error: "Record not found.",
+     requestBody: req.body,
+}</pre>
+<li>503 Service Unavailable</li>
+<pre>
+CONTENT
+{ 
+	error: "Service Unavailable",
+	requestBody: req.body,
+}</pre>
+<hr>
+ <h4>📜 Station object:</h4>
 <pre>
 type TStation = {
   station_id: number;
@@ -96,11 +157,9 @@ type TStation = {
   station_capacity: number;
   station_coord_x: number;
   station_coord_y: number;
-  station_departures: number;
-  station_returns: number;
 };
 </pre>
-<h4>Journey object:</h4>
+<h4>📜 Journey object:</h4>
 <pre>
 type TJourney = {
   id: number;
