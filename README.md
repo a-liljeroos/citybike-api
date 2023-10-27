@@ -41,7 +41,7 @@
 }
 </pre>
 <li>Parameters</li>
-<p><i>station_id</i> - The unique identifier of the station.</p>
+<p><i>station_id</i> - Number. The unique identifier of the station.</p>
 
 <h4>✅ Success Response:  </h4>
 <li>200 OK</li>
@@ -141,6 +141,41 @@ CONTENT
 	error: "Service Unavailable",
 	requestBody: req.body,
 }</pre>
+<hr>
+<h2>📥 /journeys/pages</h2>
+<h3>method: <b>GET</b></h3>
+<li>Query Parameters</li>
+<p><i>page</i> - The requested page number. Minimum value: 1.</p>
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
+<pre>CONTENT
+{
+      TJourney[],
+      pagination: {
+        currentPage: number,
+        pageSize: number,
+        totalJourneys: number,
+        totalPages: number,
+      },
+    }</pre>
+<h4>❌ Error Responses:</h4>
+<li>400 Bad Request</li>
+<pre>CONTENT
+{
+      error: "Not a valid request.",
+      message: "The request query does not match the expected schema.",
+      requestQuery: req.query,
+      correctExample: { page: 1 },
+ }</pre>
+<li>404 Not Found</li>
+<pre>CONTENT
+{
+error: "Record not found.",
+requestQuery: req.query
+}</pre>
+<li>503 Service Unavailable</li>
+<pre>CONTENT
+{ error: "Service Unavailable" }</pre>
 <hr>
  <h4>📜 Station object:</h4>
 <pre>
