@@ -7,9 +7,6 @@
   <li>PostgreSQL</li>
   <li>express, pg, dotenv, joi, cors, TypeORM</li>
 </ul>
-
-<br/>
-
 <p>This the backend service of a small application where the user can browse Helsinki City Bike stations and journeys from the summer 2021. The data is imported from CSV files to the database.</p>
 
 <p>The station data was imported and validated with PgAdmin 4 and the journey data with a script made in Python. There were only two requirements for the valdiation: don't import journeys that lasted for less than ten seconds and don't import journeys that covered distances shorter than 10 meters. I did the validation two times. Once in the import script and second time in the database tables. The script is in a folder "./postgres/python" if you are interested to take a look.</p>
@@ -33,16 +30,16 @@
 <pre>CONTENT
 { error: "Service Unavailable" }</pre>
 <hr>
-<h2>📥 /stations/</h2>
-<h3>method: <b>POST</b></h3>
-<li>Request body:</li>
-<pre>{
-  "station_id": number
+<h2>📥 /stations</h2>
+<h3>method: <b>GET</b></h3>
+<li>Query parameters:</li>
+<p><i>station_id</i> - Number. The unique identifier of the station.</p>
+<li>Request schema:</li>
+<pre>
+{
+      station_id: Joi.number().min(1).required(),
 }
 </pre>
-<li>Parameters</li>
-<p><i>station_id</i> - Number. The unique identifier of the station.</p>
-
 <h4>✅ Success Response:  </h4>
 <li>200 OK</li>
 <pre>{ TStation }</pre>
@@ -52,10 +49,10 @@
 <pre>
 CONTENT
 {
-  "error": "Not a valid request.",
-  "message": "The request body does not match the expected schema.",
-  "requestBody": { "station_id": "1" },
-  "correctExample": { "station_id": 1, }
+        error: "Not a valid request.",
+        message: "The query parameter does not match the expected schema.",
+        requestQuery: req.query,
+        correctExample: { station_id: 1 },
 }
 </pre>
 <li>404 Not Found</li>
@@ -63,13 +60,16 @@ CONTENT
 CONTENT
 {
   "error": "Record not found.",
-  "requestBody": { "station_id": 1 }
+  "requestQuery": req.query,
 }
 </pre>
 <li>503 Service Unavailable</li>
 <pre>
 CONTENT
-{ error: "Service Unavailable" }</pre>
+{ 
+error: "Service Unavailable",
+requestQuery: req.query
+}</pre>
 <hr>
 <h2>📥 /stations/data</h2>
 <h3>method: <b>GET</b></h3>

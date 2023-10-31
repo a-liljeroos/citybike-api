@@ -58,31 +58,33 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
   }
 });
 
-// returns station by id: {station_id: 1, trafficInfo} => {station} || {station with trafficInfo}
+// returns station by id: {station_id: 1} => {station}
 
-stationRoutes.post("/", async (req: Request, res: Response) => {
+stationRoutes.get("/", async (req: Request, res: Response) => {
   try {
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
     });
 
-    if (schema.validate(req.body).error) {
+    if (schema.validate(req.query).error) {
       return res.status(400).json({
         error: "Not a valid request.",
-        message: "The request body does not match the expected schema.",
-        requestBody: req.body,
+        message: "The query parameter does not match the expected schema.",
+        requestQuery: req.query,
         correctExample: { station_id: 1 },
       });
     }
 
+    const station_id = Number(req.query.station_id);
+
     const station = await stationRepository.findOne({
-      where: { station_id: req.body.station_id },
+      where: { station_id: station_id },
     });
 
     if (!station) {
       return res.status(404).json({
         error: "Record not found.",
-        requestBody: req.body,
+        requestQuery: req.query,
       });
     }
 
@@ -90,7 +92,7 @@ stationRoutes.post("/", async (req: Request, res: Response) => {
   } catch (error) {
     return res
       .status(503)
-      .json({ error: "Service Unavailable", requestBody: req.body });
+      .json({ error: "Service Unavailable", requestQuery: req.query });
   }
 });
 
