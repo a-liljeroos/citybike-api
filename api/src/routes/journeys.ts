@@ -55,8 +55,6 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
     const pageNumber = Math.ceil(Number(req.query.page));
     const skip = (pageNumber - 1) * pageSize;
 
-    // GET THE TOTAL NUMBER OF JOURNEYS
-    const totalJourneys = await journeyRepository.count();
     // FIND THE JOURNEYS FOR THE GIVEN PAGE
     const journeys = await journeyRepository.find({
       skip,
@@ -79,8 +77,6 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
       pagination: {
         currentPage: pageNumber,
         pageSize,
-        totalJourneys,
-        totalPages: Math.ceil(totalJourneys / pageSize),
       },
     });
     return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
