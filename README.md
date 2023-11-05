@@ -5,13 +5,15 @@
   <li>NodeJS</li>
     <li>Typescript</li>
   <li>PostgreSQL</li>
-  <li>express, pg, dotenv, joi, cors, TypeORM</li>
+  <li>express, pg, dotenv, joi, cors, TypeORM, winston, uuid</li>
 </ul>
 <p>This the backend service of a small application where the user can browse Helsinki City Bike stations and journeys from the summer 2021. The data is imported from CSV files to the database.</p>
 
 <p>The station data was imported and validated with PgAdmin 4 and the journey data with a script made in Python. There were only two requirements for the valdiation: don't import journeys that lasted for less than ten seconds and don't import journeys that covered distances shorter than 10 meters. I did the validation two times. Once in the import script and second time in the database tables. The script is in a folder "./postgres/python" if you are interested to take a look.</p>
 
 <p>After that the data is exported to a .sql file to populate the docker image.</p>
+
+<p>Application operations are logged with winston. Each request is logged with unique identifier, time, requested endpoint, user device information, execution time duration, request body/query & possible errors. </p>
 
 <p>The api calls are validated with <a target="_blank" href="https://joi.dev/">joi</a> and database queries are done with <a target="_blank" href="https://typeorm.io">TypeORM</a>. The endpoints are listed below:</p>
 <hr>
