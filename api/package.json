@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/src/server.js\"",
     "test": "cross-env NODE_ENV=test jest --watchAll --forceExit --maxWorkers=1"
   },
   "keywords": [],
@@ -20,7 +20,9 @@
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.17",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

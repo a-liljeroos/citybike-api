@@ -1,8 +1,10 @@
-import { Router, Request, Response } from "express";
-import { TStation, TStationTrafficData } from "../Types";
-import { stationRepository, journeyRepository } from "../data-source";
 import { cleanData, sortObjectArray, exampleStation } from "../utilities";
-
+import { endTime } from "../utilities";
+import { logger } from "../../logger";
+import { Router, Request, Response } from "express";
+import { stationRepository, journeyRepository } from "../data-source";
+import { TStationTrafficData } from "../Types";
+import app from "..";
 const Joi = require("joi");
 
 export const stationRoutes = Router();
@@ -10,13 +12,18 @@ export const stationRoutes = Router();
 // returns all stations => {station[]}
 
 stationRoutes.get("/all", async (req: Request, res: Response) => {
+  const requestId = app.locals.requestId;
+  const startTime = app.locals.startTime;
   try {
     const stations = await stationRepository.find();
 
     if (!stations) {
-      return res.status(404).json({
+      res.status(404).json({
         error: "Record not found.",
       });
+      return logger.warn(
+        `${requestId}} 404 Record not found. ${endTime(startTime)} ms,`
+      );
     }
 
     const sortedArray = sortObjectArray({
@@ -24,13 +31,23 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
       key: "station_name",
       reverse: false,
     });
-    return res.status(200).json(sortedArray);
+    res.status(200).json(sortedArray);
+    return logger.info(
+      `${requestId}, Request 200 OK, ${endTime(startTime)} ms,`
+    );
   } catch (error) {
-    return res.status(503).json({ error: "Service Unavailable." });
+    res.status(503).json({ error: "Service Unavailable." });
+    return logger.error(
+      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${endTime(
+        startTime
+      )} ms, ${error}`
+    );
   }
 });
 
 stationRoutes.get("/data", async (req: Request, res: Response) => {
+  const requestId = app.locals.requestId;
+  const startTime = app.locals.startTime;
   try {
     const station_id = Number(req.query.trafficInfo);
 
@@ -42,37 +59,50 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
     });
 
     if (!departures || !returns) {
-      return res.status(404).json({
+      res.status(404).json({
         error: "Record not found.",
       });
+      return logger.warn(
+        `${requestId}} 404 Record not found. ${endTime(
+          startTime
+        )} ms, departures: ${departures}, returns: ${returns}`
+      );
     }
 
     const stationTrafficData: TStationTrafficData = {
       station_departures: departures,
       station_returns: returns,
     };
-
-    return res.status(200).json(stationTrafficData);
+    res.status(200).json(stationTrafficData);
+    return logger.info(`${requestId} Request 200 OK ${endTime(startTime)} ms,`);
   } catch (error) {
-    return res.status(503).json({ error: "Service Unavailable." });
+    res.status(503).json({ error: "Service Unavailable." });
+    return logger.error(
+      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${error}`
+    );
   }
 });
 
 // returns station by id: {station_id: 1} => {station}
 
 stationRoutes.get("/", async (req: Request, res: Response) => {
+  const requestId = app.locals.requestId;
+  const startTime = app.locals.startTime;
   try {
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
     });
 
     if (schema.validate(req.query).error) {
-      return res.status(400).json({
+      res.status(400).json({
         error: "Not a valid request.",
         message: "The query parameter does not match the expected schema.",
         requestQuery: req.query,
         correctExample: { station_id: 1 },
       });
+      return logger.warn(
+        `${requestId} 400 Not a valid request. ${endTime(startTime)} ms,`
+      );
     }
 
     const station_id = Number(req.query.station_id);
@@ -82,23 +112,32 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
     });
 
     if (!station) {
-      return res.status(404).json({
+      res.status(404).json({
         error: "Record not found.",
         requestQuery: req.query,
       });
+      return logger.warn(
+        `${requestId} ${req.method} ${req.url} 404 Record not found. ${endTime(
+          startTime
+        )} ms,`
+      );
     }
 
-    return res.status(200).json(station);
+    res.status(200).json(station);
+    return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
   } catch (error) {
-    return res
+    res
       .status(503)
       .json({ error: "Service Unavailable", requestQuery: req.query });
+    return logger.error(`${requestId} 503 Service Unavailable. ${error}`);
   }
 });
 
 // edit given station
 
 stationRoutes.put("/edit", async (req: Request, res: Response) => {
+  const requestId = app.locals.requestId;
+  const startTime = app.locals.startTime;
   try {
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
@@ -116,12 +155,15 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
     });
 
     if (schema.validate(req.body).error) {
-      return res.status(400).json({
+      res.status(400).json({
         error: "Not a valid request.",
         message: "The request body does not match the expected schema.",
         requestBody: req.body,
         correctExample: exampleStation,
       });
+      return logger.warn(
+        `${requestId} 400 Not a valid request. ${endTime(startTime)} ms`
+      );
     }
 
     const station = await stationRepository.findOne({
@@ -129,10 +171,13 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
     });
 
     if (!station) {
-      return res.status(404).json({
+      res.status(404).json({
         error: "Record not found.",
         requestBody: req.body,
       });
+      return logger.warn(
+        `${requestId} 404 Record not found. ${endTime(startTime)} ms,`
+      );
     }
 
     const newStationData = cleanData(req.body);
@@ -143,10 +188,18 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
       message: "Resource updated successfully.",
       updatedResource: newStationData,
     });
+    return logger.info(
+      `${requestId} Request 201 Created, ${endTime(startTime)} ms`
+    );
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
       requestBody: req.body,
     });
+    return logger.error(
+      `${app.locals.requestId} ${req.method} ${
+        req.url
+      } 503 Service Unavailable. ${endTime(startTime)} ms,  ${error}`
+    );
   }
 });
