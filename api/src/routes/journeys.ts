@@ -7,6 +7,29 @@ const Joi = require("joi");
 
 export const journeyRoutes = Router();
 
+// returns total amount of journeys in the database
+
+journeyRoutes.get("/total", async (req: Request, res: Response) => {
+  const requestId = app.locals.requestId;
+  const startTime = app.locals.startTime;
+  try {
+    const totalJourneys = await journeyRepository.count();
+    res.status(200).json({
+      totalJourneys,
+    });
+    return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
+  } catch (error) {
+    res.status(503).json({
+      error: "Service Unavailable.",
+    });
+    return logger.error(
+      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${endTime(
+        startTime
+      )} ms, ${error}`
+    );
+  }
+});
+
 // returns journeys by page number
 journeyRoutes.get("/pages", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
