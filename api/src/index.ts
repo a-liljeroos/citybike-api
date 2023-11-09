@@ -19,9 +19,9 @@ app.use((req, res, next) => {
   app.locals.requestId = uuidv4();
   const entryLog = `${app.locals.requestId}, ${new Date().toLocaleString()}, ${
     req.method
-  } ${req.url}, ${JSON.stringify(req.headers["sec-ch-ua"])},${JSON.stringify(
-    req.headers["sec-ch-ua-platform"]
-  )}, ${JSON.stringify(req.body)}, ${JSON.stringify(req.query)}`;
+  } ${req.url}, ${JSON.stringify(req.headers["user-agent"])} ${JSON.stringify(
+    req.body
+  )}, ${JSON.stringify(req.query)}`;
   logger.info(entryLog);
   next();
 });
