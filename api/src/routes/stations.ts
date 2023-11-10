@@ -1,6 +1,5 @@
 import { cleanData, sortObjectArray, exampleStation } from "../utilities";
-import { endTime } from "../utilities";
-import { logger } from "../../logger";
+import { routeLogger } from "../../logger";
 import { Router, Request, Response } from "express";
 import { stationRepository, journeyRepository } from "../data-source";
 import { TStationTrafficData } from "../Types";
@@ -21,9 +20,9 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
       res.status(404).json({
         error: "Record not found.",
       });
-      return logger.warn(
-        `${requestId}} 404 Record not found. ${endTime(startTime)} ms,`
-      );
+      return routeLogger.response404(requestId, startTime, req, {
+        stations: stations,
+      });
     }
 
     const sortedArray = sortObjectArray({
@@ -32,16 +31,10 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
       reverse: false,
     });
     res.status(200).json(sortedArray);
-    return logger.info(
-      `${requestId}, Request 200 OK, ${endTime(startTime)} ms,`
-    );
+    return routeLogger.response200(requestId, startTime);
   } catch (error) {
     res.status(503).json({ error: "Service Unavailable." });
-    return logger.error(
-      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${endTime(
-        startTime
-      )} ms, ${error}`
-    );
+    return routeLogger.response503(requestId, startTime, req, { error: error });
   }
 });
 
@@ -62,11 +55,10 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
       res.status(404).json({
         error: "Record not found.",
       });
-      return logger.warn(
-        `${requestId}} 404 Record not found. ${endTime(
-          startTime
-        )} ms, departures: ${departures}, returns: ${returns}`
-      );
+      return routeLogger.response404(requestId, startTime, req, {
+        departures: departures,
+        returns: returns,
+      });
     }
 
     const stationTrafficData: TStationTrafficData = {
@@ -74,12 +66,10 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
       station_returns: returns,
     };
     res.status(200).json(stationTrafficData);
-    return logger.info(`${requestId} Request 200 OK ${endTime(startTime)} ms,`);
+    return routeLogger.response200(requestId, startTime);
   } catch (error) {
     res.status(503).json({ error: "Service Unavailable." });
-    return logger.error(
-      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${error}`
-    );
+    return routeLogger.response503(requestId, startTime, req, { error: error });
   }
 });
 
@@ -100,8 +90,14 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
         requestQuery: req.query,
         correctExample: { station_id: 1 },
       });
-      return logger.warn(
-        `${requestId} 400 Not a valid request. ${endTime(startTime)} ms,`
+      return routeLogger.response400(
+        app.locals.requestId,
+        app.locals.startTime,
+        req,
+        {
+          message: "unvalid query parameter",
+          error: schema.validate(req.query).error.stack,
+        }
       );
     }
 
@@ -116,20 +112,26 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
         error: "Record not found.",
         requestQuery: req.query,
       });
-      return logger.warn(
-        `${requestId} ${req.method} ${req.url} 404 Record not found. ${endTime(
-          startTime
-        )} ms,`
+      return routeLogger.response404(
+        app.locals.requestId,
+        app.locals.startTime,
+        req,
+        { station: station }
       );
     }
 
     res.status(200).json(station);
-    return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
+    return routeLogger.response200(app.locals.requestId, app.locals.startTime);
   } catch (error) {
     res
       .status(503)
       .json({ error: "Service Unavailable", requestQuery: req.query });
-    return logger.error(`${requestId} 503 Service Unavailable. ${error}`);
+    return routeLogger.response503(
+      app.locals.requestId,
+      app.locals.startTime,
+      req,
+      { error: error }
+    );
   }
 });
 
@@ -155,14 +157,18 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
     });
 
     if (schema.validate(req.body).error) {
+      console.log(schema.validate(req.body).error);
       res.status(400).json({
         error: "Not a valid request.",
         message: "The request body does not match the expected schema.",
         requestBody: req.body,
         correctExample: exampleStation,
       });
-      return logger.warn(
-        `${requestId} 400 Not a valid request. ${endTime(startTime)} ms`
+      return routeLogger.response400(
+        app.locals.requestId,
+        app.locals.startTime,
+        req,
+        { error: schema.validate(req.body).error.stack }
       );
     }
 
@@ -175,8 +181,11 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
         error: "Record not found.",
         requestBody: req.body,
       });
-      return logger.warn(
-        `${requestId} 404 Record not found. ${endTime(startTime)} ms,`
+      return routeLogger.response404(
+        app.locals.requestId,
+        app.locals.startTime,
+        req,
+        { station: station }
       );
     }
 
@@ -188,18 +197,22 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
       message: "Resource updated successfully.",
       updatedResource: newStationData,
     });
-    return logger.info(
-      `${requestId} Request 201 Created, ${endTime(startTime)} ms`
+    return routeLogger.response201(
+      app.locals.requestId,
+      app.locals.startTime,
+      req,
+      { updatedResource: newStationData }
     );
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
       requestBody: req.body,
     });
-    return logger.error(
-      `${app.locals.requestId} ${req.method} ${
-        req.url
-      } 503 Service Unavailable. ${endTime(startTime)} ms,  ${error}`
+    return routeLogger.response503(
+      app.locals.requestId,
+      app.locals.startTime,
+      req,
+      { error: error }
     );
   }
 });

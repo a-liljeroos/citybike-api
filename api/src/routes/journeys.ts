@@ -1,6 +1,5 @@
-import { endTime } from "../utilities";
 import { journeyRepository } from "../data-source";
-import { logger } from "../../logger";
+import { routeLogger } from "../../logger";
 import { Router, Request, Response } from "express";
 import app from "..";
 const Joi = require("joi");
@@ -17,16 +16,14 @@ journeyRoutes.get("/total", async (req: Request, res: Response) => {
     res.status(200).json({
       totalJourneys,
     });
-    return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
+    return routeLogger.response200(requestId, startTime);
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
     });
-    return logger.error(
-      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${endTime(
-        startTime
-      )} ms, ${error}`
-    );
+    return routeLogger.response503(requestId, startTime, req, {
+      error: error.stack,
+    });
   }
 });
 
@@ -38,7 +35,6 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
     const schema = Joi.object().keys({
       page: Joi.number().min(1).required(),
     });
-
     if (schema.validate(req.query).error) {
       res.status(400).json({
         error: "Not a valid request.",
@@ -46,9 +42,9 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
         requestQuery: req.query,
         correctExample: { page: 1 },
       });
-      return logger.warn(
-        `${requestId} 400 Not a valid request. ${endTime(startTime)} ms,`
-      );
+      return routeLogger.response400(requestId, startTime, req, {
+        error: schema.validate(req.query).error.stack,
+      });
     }
     // CALCULATE PAGINATION VALUES
     const pageSize = 30;
@@ -66,9 +62,9 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
         error: "Record not found.",
         requestQuery: req.query,
       });
-      return logger.warn(
-        `${requestId} 404 Record not found. ${endTime(startTime)} ms,`
-      );
+      return routeLogger.response404(requestId, startTime, req, {
+        journeys: journeys,
+      });
     }
 
     // PAGE RESPONSE
@@ -79,16 +75,14 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
         pageSize,
       },
     });
-    return logger.info(`${requestId} Request 200 OK, ${endTime(startTime)} ms`);
+    return routeLogger.response200(requestId, startTime);
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
       requestQuery: req.query,
     });
-    return logger.error(
-      `${requestId} ${req.method} ${req.url} 503 Service Unavailable. ${endTime(
-        startTime
-      )} ms, ${error}`
-    );
+    return routeLogger.response503(requestId, startTime, req, {
+      error: error.stack,
+    });
   }
 });

@@ -59,7 +59,3 @@ export const exampleStation = {
   station_coord_x: "24.724835",
   station_coord_y: "60.160645",
 };
-
-export function endTime(startTime: number): number {
-  return new Date().getTime() - startTime;
-}
