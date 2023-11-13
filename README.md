@@ -85,6 +85,16 @@ requestQuery: req.query
   "station_returns": number;
 };</pre>
 <h4>❌ Error Responses:</h4>
+<li>400 Bad Request</li>
+<pre>
+CONTENT
+{
+        error: "Not a valid request.",
+        message: "The query parameter does not match the expected schema.",
+        requestQuery: req.query,
+        correctExample: { station_id: 1 },
+}
+</pre>
 <li>404 Not Found</li>
 <pre>
 CONTENT
@@ -144,8 +154,34 @@ CONTENT
 	requestBody: req.body,
 }</pre>
 <hr>
+<h2>📥 /journeys/total</h2>
+<h3>method: <b>GET</b></h3>
+<p>Returns the total amount of journeys in the database.</p>
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
+<pre>CONTENT
+{
+    "totalJourneys": number
+}</pre>
+<h4>❌ Error Responses:</h4>
+<li>503 Service Unavailable</li>
+<pre>CONTENT
+{ 
+  error: "Service Unavailable" 
+}</pre>
 <h2>📥 /journeys/pages</h2>
 <h3>method: <b>GET</b></h3>
+<h4>✅ Success Response:  </h4>
+<li>200 OK</li>
+<pre>CONTENT
+{
+      TJourney[],
+      pagination: {
+        currentPage: number,
+        pageSize: number,
+      },
+}</pre>
+<h4>❌ Error Responses:</h4>
 <li>Query Parameters</li>
 <p><i>page</i> - The requested page number. Minimum value: 1.</p>
 <h4>✅ Success Response:  </h4>
@@ -156,10 +192,8 @@ CONTENT
       pagination: {
         currentPage: number,
         pageSize: number,
-        totalJourneys: number,
-        totalPages: number,
       },
-    }</pre>
+}</pre>
 <h4>❌ Error Responses:</h4>
 <li>400 Bad Request</li>
 <pre>CONTENT

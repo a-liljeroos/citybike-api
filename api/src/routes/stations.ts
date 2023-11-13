@@ -42,6 +42,23 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
   try {
+    const schema = Joi.object().keys({
+      station_id: Joi.number().min(1).required(),
+    });
+
+    if (schema.validate(req.query).error) {
+      res.status(400).json({
+        error: "Not a valid request.",
+        message: "The query parameter does not match the expected schema.",
+        requestQuery: req.query,
+        correctExample: { station_id: 1 },
+      });
+      return routeLogger.response400(requestId, startTime, req, {
+        message: "Query parameter is not valid.",
+        error: schema.validate(req.query).error.stack,
+      });
+    }
+
     const station_id = Number(req.query.trafficInfo);
 
     const departures = await journeyRepository.count({
@@ -95,7 +112,7 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
         app.locals.startTime,
         req,
         {
-          message: "unvalid query parameter",
+          message: "Query parameter is not valid.",
           error: schema.validate(req.query).error.stack,
         }
       );
