@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/src/server.js\"",
     "test": "cross-env NODE_ENV=test jest --watchAll --forceExit --maxWorkers=1"
   },
