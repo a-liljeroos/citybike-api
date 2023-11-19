@@ -73,7 +73,7 @@ error: "Service Unavailable",
 requestQuery: req.query
 }</pre>
 <hr>
-<h2>📥 /stations/data</h2>
+<h2>📥 /stations/trafficinfo</h2>
 <h3>method: <b>GET</b></h3>
 <li>Query Parameters</li>
 <p><i>trafficInfo</i> - The unique identifier of the station.</p>

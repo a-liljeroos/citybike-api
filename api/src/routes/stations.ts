@@ -38,7 +38,7 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
   }
 });
 
-stationRoutes.get("/data", async (req: Request, res: Response) => {
+stationRoutes.get("/trafficinfo", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
   try {
@@ -59,7 +59,7 @@ stationRoutes.get("/data", async (req: Request, res: Response) => {
       });
     }
 
-    const station_id = Number(req.query.trafficInfo);
+    const station_id = Number(req.query.station_id);
 
     const departures = await journeyRepository.count({
       where: { departure_station_id: station_id },
