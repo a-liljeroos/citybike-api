@@ -1,6 +1,7 @@
 import { journeyRepository } from "../data-source";
 import { routeLogger } from "../../logger";
 import { Router, Request, Response } from "express";
+import { verifyToken } from "../jsonwebtoken";
 import app from "..";
 const Joi = require("joi");
 
@@ -11,16 +12,22 @@ export const journeyRoutes = Router();
 journeyRoutes.get("/total", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
     const totalJourneys = await journeyRepository.count();
+
     res.status(200).json({
       totalJourneys,
     });
+
     return routeLogger.response200(requestId, startTime);
+    //
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
     });
+
     return routeLogger.response503(requestId, startTime, req, {
       error: error.stack,
     });
@@ -28,13 +35,28 @@ journeyRoutes.get("/total", async (req: Request, res: Response) => {
 });
 
 // returns journeys by page number
+
 journeyRoutes.get("/pages", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
+    verifyToken(req.headers["x-access-token"] as string);
+    //
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized." });
+    return routeLogger.response401(requestId, startTime, req, {
+      error: error,
+    });
+  }
+
+  try {
+    //
     const schema = Joi.object().keys({
       page: Joi.number().min(1).required(),
     });
+
     if (schema.validate(req.query).error) {
       res.status(400).json({
         error: "Not a valid request.",
@@ -75,7 +97,9 @@ journeyRoutes.get("/pages", async (req: Request, res: Response) => {
         pageSize,
       },
     });
+
     return routeLogger.response200(requestId, startTime);
+    //
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",
