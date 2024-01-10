@@ -58,6 +58,7 @@ class RouteLogger {
   }
 
   public start(requestId: string, startTime: number, req: Request) {
+    delete req.body.password;
     this.logger.info({
       requestId: requestId,
       startTime: new Date().toLocaleString(),
@@ -67,6 +68,7 @@ class RouteLogger {
       url: req.url,
       query: req.query,
       body: req.body,
+      xAccessToken: req.headers["x-access-token"],
     });
   }
 
@@ -110,6 +112,22 @@ class RouteLogger {
     });
   }
 
+  public response401(
+    requestId: string,
+    startTime: number,
+    req: Request,
+    message?: {}
+  ) {
+    this.logger.warn({
+      requestId: requestId,
+      time: new Date().toLocaleString(),
+      responseCode: 401,
+      url: req.url,
+      duration: this.endTime(startTime),
+      message: message ? message : null,
+    });
+  }
+
   public response404(
     requestId: string,
     startTime: number,
@@ -120,6 +138,22 @@ class RouteLogger {
       requestId: requestId,
       time: new Date().toLocaleString(),
       responseCode: 404,
+      url: req.url,
+      duration: this.endTime(startTime),
+      message: message ? message : null,
+    });
+  }
+
+  public response409(
+    requestId: string,
+    startTime: number,
+    req: Request,
+    message?: {}
+  ) {
+    this.logger.warn({
+      requestId: requestId,
+      time: new Date().toLocaleString(),
+      responseCode: 409,
       url: req.url,
       duration: this.endTime(startTime),
       message: message ? message : null,

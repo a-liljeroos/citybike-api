@@ -3,6 +3,7 @@ import { routeLogger } from "../../logger";
 import { Router, Request, Response } from "express";
 import { stationRepository, journeyRepository } from "../data-source";
 import { TStationTrafficData } from "../Types";
+import { verifyToken } from "../jsonwebtoken";
 import app from "..";
 const Joi = require("joi");
 
@@ -13,7 +14,20 @@ export const stationRoutes = Router();
 stationRoutes.get("/all", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
+    verifyToken(req.headers["x-access-token"] as string);
+    //
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized." });
+    return routeLogger.response401(requestId, startTime, req, {
+      error: error,
+    });
+  }
+
+  try {
+    //
     const stations = await stationRepository.find();
 
     if (!stations) {
@@ -32,16 +46,33 @@ stationRoutes.get("/all", async (req: Request, res: Response) => {
     });
     res.status(200).json(sortedArray);
     return routeLogger.response200(requestId, startTime);
+    //
   } catch (error) {
     res.status(503).json({ error: "Service Unavailable." });
+
     return routeLogger.response503(requestId, startTime, req, { error: error });
   }
 });
 
+// returns the amount of departures and returns from a given station: {station_id: 1} => {station_departures: 1, station_returns: 1}
+
 stationRoutes.get("/trafficinfo", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
+    verifyToken(req.headers["x-access-token"] as string);
+    //
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized." });
+    return routeLogger.response401(requestId, startTime, req, {
+      error: error,
+    });
+  }
+
+  try {
+    //
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
     });
@@ -64,6 +95,7 @@ stationRoutes.get("/trafficinfo", async (req: Request, res: Response) => {
     const departures = await journeyRepository.count({
       where: { departure_station_id: station_id },
     });
+
     const returns = await journeyRepository.count({
       where: { return_station_id: station_id },
     });
@@ -82,10 +114,14 @@ stationRoutes.get("/trafficinfo", async (req: Request, res: Response) => {
       station_departures: departures,
       station_returns: returns,
     };
+
     res.status(200).json(stationTrafficData);
+
     return routeLogger.response200(requestId, startTime);
+    //
   } catch (error) {
     res.status(503).json({ error: "Service Unavailable." });
+
     return routeLogger.response503(requestId, startTime, req, { error: error });
   }
 });
@@ -95,7 +131,20 @@ stationRoutes.get("/trafficinfo", async (req: Request, res: Response) => {
 stationRoutes.get("/", async (req: Request, res: Response) => {
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
+    verifyToken(req.headers["x-access-token"] as string);
+    //
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized." });
+    return routeLogger.response401(requestId, startTime, req, {
+      error: error,
+    });
+  }
+
+  try {
+    //
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
     });
@@ -138,7 +187,9 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
     }
 
     res.status(200).json(station);
+
     return routeLogger.response200(app.locals.requestId, app.locals.startTime);
+    //
   } catch (error) {
     res
       .status(503)
@@ -155,9 +206,23 @@ stationRoutes.get("/", async (req: Request, res: Response) => {
 // edit given station
 
 stationRoutes.put("/edit", async (req: Request, res: Response) => {
+  //
   const requestId = app.locals.requestId;
   const startTime = app.locals.startTime;
+
   try {
+    //
+    verifyToken(req.headers["x-access-token"] as string);
+    //
+  } catch (error) {
+    res.status(401).json({ error: "Unauthorized." });
+    return routeLogger.response401(requestId, startTime, req, {
+      error: error,
+    });
+  }
+
+  try {
+    //
     const schema = Joi.object().keys({
       station_id: Joi.number().min(1).required(),
       station_nimi: Joi.string().min(1).max(50).required(),
@@ -214,12 +279,14 @@ stationRoutes.put("/edit", async (req: Request, res: Response) => {
       message: "Resource updated successfully.",
       updatedResource: newStationData,
     });
+
     return routeLogger.response201(
       app.locals.requestId,
       app.locals.startTime,
       req,
       { updatedResource: newStationData }
     );
+    //
   } catch (error) {
     res.status(503).json({
       error: "Service Unavailable.",

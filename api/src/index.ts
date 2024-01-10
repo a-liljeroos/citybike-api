@@ -1,12 +1,15 @@
-import express, { Express, Request, Response, NextFunction } from "express";
+import "reflect-metadata";
+import { corsOptions } from "./options";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
-import { corsOptions } from "./options";
-import { stationRoutes } from "./routes/stations";
-import { journeyRoutes } from "./routes/journeys";
-import "reflect-metadata";
-import { routeLogger } from "../logger";
+import express, { Express, Request, Response, NextFunction } from "express";
 dotenv.config();
+
+// routes
+import { journeyRoutes } from "./routes/journeys";
+import { routeLogger } from "../logger";
+import { stationRoutes } from "./routes/stations";
+import { userRoutes } from "./routes/user";
 
 const cors = require("cors");
 const app: Express = express();
@@ -21,8 +24,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use("/stations", stationRoutes);
 app.use("/journeys", journeyRoutes);
+app.use("/stations", stationRoutes);
+app.use("/user", userRoutes);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
     error: "Not Found.",
