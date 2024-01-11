@@ -39,6 +39,14 @@ class RouteLogger {
     }
   }
 
+  private redactPassword(body: Record<string, any>): Record<string, any> {
+    const redactedBody = { ...body };
+    if (redactedBody.password) {
+      redactedBody.password = "********";
+    }
+    return redactedBody;
+  }
+
   private startTime: number = new Date().getTime();
 
   private endTime(startTime: number): number {
@@ -58,7 +66,7 @@ class RouteLogger {
   }
 
   public start(requestId: string, startTime: number, req: Request) {
-    delete req.body.password;
+    const requestBody = this.redactPassword(req.body);
     this.logger.info({
       requestId: requestId,
       startTime: new Date().toLocaleString(),
@@ -67,7 +75,7 @@ class RouteLogger {
       userAgent: req.headers["user-agent"],
       url: req.url,
       query: req.query,
-      body: req.body,
+      body: requestBody,
       xAccessToken: req.headers["x-access-token"],
     });
   }
@@ -101,11 +109,12 @@ class RouteLogger {
     req: Request,
     message?: {}
   ) {
+    const requestBody = this.redactPassword(req.body);
     this.logger.warn({
       requestId: requestId,
       responseCode: 400,
       query: req.query,
-      body: req.body,
+      body: requestBody,
       url: req.url,
       duration: this.endTime(startTime),
       message: message ? message : null,
