@@ -39,10 +39,17 @@ class RouteLogger {
     }
   }
 
+  private replaceCharacters(input: string) {
+    return "*".repeat(input.length);
+  }
+
   private redactPassword(body: Record<string, any>): Record<string, any> {
     const redactedBody = { ...body };
     if (redactedBody.password) {
-      redactedBody.password = "********";
+      redactedBody.password = this.replaceCharacters(redactedBody.password);
+      redactedBody.repeatPassword = this.replaceCharacters(
+        redactedBody.repeatPassword
+      );
     }
     return redactedBody;
   }
@@ -80,11 +87,12 @@ class RouteLogger {
     });
   }
 
-  public response200(requestId: string, startTime: number) {
+  public response200(requestId: string, startTime: number, message?: {}) {
     this.logger.info({
       requestId: requestId,
       responseCode: 200,
       duration: this.endTime(startTime),
+      message: message ? message : null,
     });
   }
 
