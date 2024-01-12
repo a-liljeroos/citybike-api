@@ -10,10 +10,11 @@ const Joi = require("joi");
 export const userRoutes = Router();
 
 const userSchema = {
+  id: Joi.number().integer().min(0).max(2147483647),
   username: Joi.string().min(5).max(32).required(),
   password: Joi.string().min(8).max(60).required(),
   repeatPassword: Joi.string().min(8).max(60).required(),
-  email: Joi.string().email().min(0).max(255),
+  email: Joi.string().email().min(0).max(255).allow(""),
 };
 
 userRoutes.post("/create", async (req: Request, res: Response) => {
@@ -52,7 +53,7 @@ userRoutes.post("/create", async (req: Request, res: Response) => {
           username: "username",
           password: "password",
           repeatPassword: "password",
-          email: "",
+          email: "email@example.com",
         },
       });
       return routeLogger.response400(requestId, startTime, req, {
@@ -208,13 +209,31 @@ userRoutes.post("/logout", async (req: Request, res: Response) => {
   }
 
   try {
+    const schema = Joi.object().keys({
+      id: userSchema.id,
+      username: userSchema.username,
+      email: userSchema.email,
+    });
+
+    if (schema.validate(req.body).error) {
+      res.status(400).json({
+        error: "Not a valid request.",
+        message: "The request body does not match the expected schema.",
+      });
+      return routeLogger.response400(requestId, startTime, req, {
+        error: schema.validate(req.body).error.stack,
+      });
+    }
     //
     blacklistToken(token);
 
     res.status(200).json({
       message: "Logged out.",
     });
-    return routeLogger.response200(requestId, startTime);
+    return routeLogger.response200(requestId, startTime, {
+      message: "Logged out.",
+      userId: req.body.id,
+    });
     //
   } catch (error) {
     //
